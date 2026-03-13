@@ -1,0 +1,20 @@
+[
+  {%- for filter in filters %}
+  {
+    "name": "{{ filter.name }}",
+    "expression": {
+      "Column": {
+        "Expression": {
+          "SourceRef": {
+            "Entity": "{{ filter.table }}"
+          }
+        },
+        "Property": "{{ filter.column }}"
+      }
+    },
+    "type": "{{ filter.type | default('Categorical') }}",
+    "howCreated": 1,
+    "ordinal": {{ loop.index0 }}
+  }{%- if not loop.last %},{% endif %}
+  {%- endfor %}
+]

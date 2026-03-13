@@ -1,0 +1,71 @@
+{
+  "name": "{{ visual_id }}",
+  "layouts": [
+    {
+      "id": 0,
+      "position": {
+        "x": {{ x|default(50) }},
+        "y": {{ y|default(50) }},
+        "z": {{ z|default(0) }},
+        "width": {{ width|default(600) }},
+        "height": {{ height|default(400) }},
+        "tabOrder": {{ tab_order|default(1000) }}
+      }
+    }
+  ],
+  "singleVisual": {
+    "visualType": "tableEx",
+    "projections": {
+      "Values": [
+        {% for field in fields %}
+        {
+          "queryRef": "{{ field.table_name }}.{{ field.field_name }}",
+          "active": true
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    },
+    "prototypeQuery": {
+      "Version": 2,
+      "From": [
+        {
+          "Name": "{{ table_alias|default('m') }}",
+          "Entity": "{{ table_name }}",
+          "Type": 0
+        }
+      ],
+      "Select": [
+        {% for field in fields %}
+        {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Source": "{{ table_alias|default('m') }}"
+              }
+            },
+            "Property": "{{ field.field_name }}"
+          },
+          "Name": "{{ field.table_name }}.{{ field.field_name }}",
+          "NativeReferenceName": "{{ field.field_name }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    },
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "formatString": {
+              "expr": {
+                "Literal": {
+                  "Value": "'General'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

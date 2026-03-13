@@ -1,0 +1,43 @@
+name: "[DEV] Security Vulnerability Scan"
+
+on:
+  push:
+    branches: [development]
+  workflow_dispatch:
+
+jobs:
+  pysentry-scan:
+    if: ${{ github.repository != 'AIVizMigrate/Bi-Migrator-Looker' }}
+    name: Scan using pysentry-scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Run PySentry and generate markdown report
+        run: |
+          # Run scan and generate markdown output
+          uvx pysentry-rs \
+            --format markdown \
+            --output SECURITY.md \
+            --sources pypa,osv,pypi \
+            || true  # Ensure step never fails
+
+      - name: Display Security Report in Job Summary
+        run: |
+          if [ -f "SECURITY.md" ]; then
+            cat SECURITY.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Security Scan Complete" >> $GITHUB_STEP_SUMMARY
+            echo "No vulnerabilities found or report was not generated." >> $GITHUB_STEP_SUMMARY
+          fi

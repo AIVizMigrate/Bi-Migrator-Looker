@@ -1,0 +1,73 @@
+{# table.tmdl - Template for Power BI TMDL table definition #}
+{% set needs_quotes = ' ' in table.name or '-' in table.name or (table.name and table.name[0].isdigit()) %}
+{% if needs_quotes %}
+table '{{ table.name }}'
+{% else %}
+table {{ table.name }}
+{% endif %}
+{% if table.is_hidden %}
+	isHidden
+{% endif %}
+
+{% for column in table.columns %}
+{% set col_needs_quotes = ' ' in column.name or '-' in column.name or (column.name and column.name[0].isdigit()) %}
+	column {% if col_needs_quotes %}'{{ column.name }}'{% else %}{{ column.name }}{% endif %}
+		dataType: {{ column.data_type.value if column.data_type else 'string' }}
+{% if column.source_column %}
+		sourceColumn: {{ column.source_column }}
+{% endif %}
+{% if column.format_string %}
+		formatString: {{ column.format_string }}
+{% endif %}
+{% if column.summarize_by and column.summarize_by != 'none' %}
+		summarizeBy: {{ column.summarize_by }}
+{% endif %}
+{% if column.is_hidden %}
+		isHidden
+{% endif %}
+
+		annotation SummarizationSetBy = Automatic
+{% set dtype = column.data_type.value if column.data_type else 'string' %}
+{% if dtype in ['double', 'int64', 'decimal'] %}
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+{% endif %}
+
+{% endfor %}
+{% for measure in table.measures %}
+{% set meas_needs_quotes = ' ' in measure.name or '-' in measure.name or measure.name[0].isdigit() %}
+	measure {% if meas_needs_quotes %}'{{ measure.name }}'{% else %}{{ measure.name }}{% endif %} = ```
+			{{ measure.expression }}
+	```
+{% if measure.format_string %}
+		formatString: {{ measure.format_string }}
+{% endif %}
+{% if measure.is_hidden %}
+		isHidden
+{% endif %}
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+{% endfor %}
+{% for hierarchy in table.hierarchies %}
+	hierarchy {{ hierarchy.name }}
+{% if hierarchy.is_hidden %}
+		isHidden
+{% endif %}
+{% for level in hierarchy.levels %}
+		level {{ level.name }}
+			column: {{ level.column_name }}
+{% if level.ordinal is defined %}
+			ordinal: {{ level.ordinal }}
+{% endif %}
+{% endfor %}
+
+{% endfor %}
+{% for partition in table.partitions %}
+	partition '{{ partition.name }}' = {{ partition.source_type | default('m') }}
+		mode: {{ partition.mode | default('import') }}
+		source =
+			{{ partition.expression | indent(12) }}
+
+{% endfor %}
+	annotation PBI_ResultType = Table

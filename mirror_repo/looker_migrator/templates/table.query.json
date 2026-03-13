@@ -1,0 +1,56 @@
+{
+  "Commands": [
+    {
+      "SemanticQueryDataShapeCommand": {
+        "Query": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "{{ table_alias|default('m') }}",
+              "Entity": "{{ table_name }}",
+              "Type": 0
+            }
+          ],
+          "Select": [
+            {% for field in fields %}
+            {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Source": "{{ table_alias|default('m') }}"
+                  }
+                },
+                "Property": "{{ field.field_name }}"
+              },
+              "Name": "{{ field.table_name }}.{{ field.field_name }}",
+              "NativeReferenceName": "{{ field.field_name }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+          ]
+        },
+        "Binding": {
+          "Primary": {
+            "Groupings": [
+              {
+                "Projections": [
+                  {% for field in fields %}
+                  {{ loop.index0 }}{% if not loop.last %},{% endif %}
+                  {% endfor %}
+                ]
+              }
+            ]
+          },
+          "DataReduction": {
+            "DataVolume": 3,
+            "Primary": {
+              "Window": {
+                "Count": 500
+              }
+            }
+          },
+          "Version": 1
+        }
+      }
+    }
+  ]
+}

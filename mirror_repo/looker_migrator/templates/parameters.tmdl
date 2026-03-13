@@ -1,0 +1,84 @@
+{{#if has_spaces_or_special_chars}}
+table '{{table_name}}'
+{{else}}
+table {{table_name}}
+{{/if}}
+    {{#if is_hidden}}
+    isHidden
+    {{/if}}
+    {{#if is_single_row}}
+    /// Single-row parameter table containing default values for all parameters
+    /// Used in Phase 1 migration: parameters are read using SELECTEDVALUE()
+    {{else}}
+    /// Disconnected parameter table for '{{parameter_caption}}'
+    /// Domain Type: {{domain_type}} | Data Type: {{parameter_datatype}}
+    /// Use with slicer for dynamic parameter selection
+    {{/if}}
+    {{#each columns}}
+    column '{{source_name}}'
+        dataType: {{datatype}}
+        {{#if summarize_by}}
+        summarizeBy: {{summarize_by}}
+        {{else}}
+        summarizeBy: none
+        {{/if}}
+        {{#if is_hidden}}
+        isHidden
+        {{/if}}
+        sourceColumn: '{{source_name}}'
+        {{#if format_string}}
+        formatString: {{format_string}}
+        {{/if}}
+
+        annotation SummarizationSetBy = User
+
+        {{#if is_label_column}}
+        annotation PBI_FormatHint = {"isGeneralNumber":false}
+        {{else}}
+        annotation PBI_FormatHint = {"isGeneralNumber":true}
+        {{/if}}
+
+    {{/each}}
+
+    {{#if measures.length}}
+    {{#each measures}}
+    measure '{{source_name}}' = ```
+            {{{expression}}}
+    ```
+
+        {{#if format_string}}
+        formatString: {{format_string}}
+        {{/if}}
+        {{#if is_hidden}}
+        isHidden
+        {{/if}}
+        {{#if description}}
+        annotation Description = "{{description}}"
+        {{/if}}
+
+        annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+    {{/each}}
+    {{/if}}
+
+    partition {{#if has_spaces_or_special_chars}}'{{partition_name}}'{{else}}{{partition_name}}{{/if}} = m
+        mode: import
+        source = 
+{{{partition_expression}}}
+        
+
+    annotation PBI_ResultType = Table
+
+    {{#unless is_single_row}}
+    annotation PBI_NavigationStepName = Navigation
+
+    annotation __PBI_ParameterTable = 
+        {
+          "parameterName": "{{parameter_name}}",
+          "parameterCaption": "{{parameter_caption}}",
+          "parameterDatatype": "{{parameter_datatype}}",
+          "domainType": "{{domain_type}}",
+          "defaultValue": {{#if default_value_json}}{{{default_value_json}}}{{else}}null{{/if}},
+          "tableauInternalName": "{{tableau_internal_name}}"
+        }
+    {{/unless}}

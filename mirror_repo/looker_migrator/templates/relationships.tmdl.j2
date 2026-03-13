@@ -1,0 +1,28 @@
+{# relationships.tmdl - Template for Power BI TMDL relationships definition #}
+{% for rel in relationships %}
+relationship {{ rel.name | default(loop.index) }}
+	fromColumn: {{ rel.from_table }}.{{ rel.from_column }}
+	toColumn: {{ rel.to_table }}.{{ rel.to_column }}
+{% if rel.cross_filter_direction %}
+	crossFilteringBehavior: {{ rel.cross_filter_direction.value if rel.cross_filter_direction.value else 'single' }}
+{% endif %}
+{% set card = rel.cardinality.value if rel.cardinality else 'many_to_one' %}
+{% if card == 'many_to_one' %}
+	fromCardinality: many
+	toCardinality: one
+{% elif card == 'one_to_many' %}
+	fromCardinality: one
+	toCardinality: many
+{% elif card == 'one_to_one' %}
+	fromCardinality: one
+	toCardinality: one
+{% elif card == 'many_to_many' %}
+	fromCardinality: many
+	toCardinality: many
+{% else %}
+	fromCardinality: many
+	toCardinality: one
+{% endif %}
+	isActive: {{ 'true' if rel.is_active else 'false' }}
+
+{% endfor %}

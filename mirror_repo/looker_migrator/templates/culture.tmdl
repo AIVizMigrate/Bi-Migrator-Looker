@@ -1,0 +1,8 @@
+cultureInfo {{culture}}
+
+	linguisticMetadata =
+			{
+			  "Version": "{{version}}",
+			  "Language": "{{culture}}"
+			}
+		contentType: json

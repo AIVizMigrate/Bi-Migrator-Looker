@@ -1,0 +1,7 @@
+{
+  "height": {{ height|default(400) }},
+  "width": {{ width|default(600) }},
+  "x": {{ x|default(50) }},
+  "y": {{ y|default(50) }},
+  "z": {{ z|default(0) }}
+}

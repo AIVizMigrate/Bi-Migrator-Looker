@@ -1,0 +1,67 @@
+{
+  "name": "{{ visual_id }}",
+  "layouts": [
+    {
+      "id": 0,
+      "position": {
+        "x": {{ x | default(10) }},
+        "y": {{ y | default(10) }},
+        "z": {{ z | default(0) }},
+        "width": {{ width | default(288.41) }},
+        "height": {{ height | default(86.52) }},
+        "tabOrder": {{ tab_order | default(0) }}
+      }
+    }
+  ],
+  "singleVisual": {
+    "visualType": "slicer",
+    "projections": {
+      "Values": [
+        {
+          "queryRef": "{{ table_name }}.{{ field_name }}",
+          "active": true
+        }
+      ]
+    },
+    "prototypeQuery": {
+      "Version": 2,
+      "From": [
+        {
+          "Name": "{{ table_alias | default('m') }}",
+          "Entity": "{{ table_name }}",
+          "Type": 0
+        }
+      ],
+      "Select": [
+        {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Source": "{{ table_alias | default('m') }}"
+              }
+            },
+            "Property": "{{ field_name }}"
+          },
+          "Name": "{{ table_name }}.{{ field_name }}",
+          "NativeReferenceName": "{{ field_name }}"
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "data": [
+        {
+          "properties": {
+            "mode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Basic'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+} 

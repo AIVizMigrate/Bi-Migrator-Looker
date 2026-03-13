@@ -1,0 +1,16 @@
+# Development dependencies for Looker Migrator
+-r requirements.txt
+
+# Testing
+pytest>=7.0
+pytest-cov>=4.0
+pytest-asyncio>=0.21
+
+# Code quality
+black>=23.0
+ruff>=0.1.0
+mypy>=1.0
+
+# Type stubs
+types-PyYAML
+types-requests
