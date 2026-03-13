@@ -1,0 +1,13 @@
+{
+  "projectionOrdering": {
+    "Values": [
+      {% for field in fields %}
+      {
+        "queryRef": "{{ field.table_name }}.{{ field.field_name }}",
+        "active": true,
+        "displayName": "{{ field.display_name|default(field.field_name) }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+}

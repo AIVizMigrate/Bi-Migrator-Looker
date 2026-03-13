@@ -1,0 +1,37 @@
+{
+  "version": "{{ version }}",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {%- for node in nodes %}
+        {
+          "location": {
+            "x": {{ node.location.x }},
+            "y": {{ node.location.y }}
+          },
+          "nodeIndex": "{{ node.nodeIndex }}",
+          "nodeLineageTag": "{{ node.nodeLineageTag }}",
+          "size": {
+            "height": {{ node.size.height }},
+            "width": {{ node.size.width }}
+          },
+          "zIndex": {{ node.zIndex }}
+        }{%- if not loop.last %},{% endif %}
+        {%- endfor %}
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

@@ -1,0 +1,6 @@
+{
+  "Version": {{ version|default(5) }},
+  "AutoCreatedRelationships": [],
+  "CreatedFrom": "{{ created_from|default('Cloud') }}",
+  "CreatedFromRelease": "{{ created_from_release|default('2025.03') }}"
+}

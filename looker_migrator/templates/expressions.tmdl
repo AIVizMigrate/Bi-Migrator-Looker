@@ -1,0 +1,5 @@
+{% for expression in expressions %}
+expression {{ expression.name }} = {{ expression.expression }}
+{% if expression.description %}    annotation Description = {{ expression.description }}{% endif %}
+
+{% endfor %}

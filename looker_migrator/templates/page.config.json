@@ -1,0 +1,52 @@
+{
+  "version": "{{ version | default('5.59') }}",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "{{ theme_name | default('CY24SU10') }}",
+      "type": {{ theme_type | default(2) | int }},
+      "version": "{{ theme_version | default('5.65') }}"
+    }
+  },
+  "activeSectionIndex": {{ active_section_index | default(0) }},
+  "defaultDrillFilterOtherVisuals": {{ default_drill_filter | default(true) | lower }},
+  "linguisticSchemaSyncVersion": 2,
+  "settings": {
+    "useNewFilterPaneExperience": {{ use_new_filter_pane | default(true) | lower }},
+    "allowChangeFilterTypes": {{ allow_change_filter_types | default(true) | lower }},
+    "useStylableVisualContainerHeader": true,
+    "queryLimitOption": 6,
+    "exportDataMode": 1,
+    "useDefaultAggregateDisplayName": true,
+    "useEnhancedTooltips": {{ use_enhanced_tooltips | default(true) | lower }}
+  },
+  "objects": {
+    "section": [
+      {%- for section in section_references %}
+      {
+        "properties": {
+          "verticalAlignment": {
+            "expr": {
+              "Literal": {
+                "Value": "'Top'"
+              }
+            }
+          }
+        }
+      }{%- if not loop.last %},{% endif %}
+      {%- endfor %}
+    ],
+    "outspacePane": [
+      {
+        "properties": {
+          "expanded": {
+            "expr": {
+              "Literal": {
+                "Value": "true"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

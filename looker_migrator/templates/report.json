@@ -1,0 +1,22 @@
+{
+  "id": {% if report_id is string %}"{{ report_id }}"{% else %}{{ report_id | default(0) }}{% endif %},
+  "layoutOptimization": {{ layout_optimization | default(0) }},
+  "resourcePackages": [
+    {
+      "resourcePackage": {
+        "disabled": false,
+        "items": [
+          {%- for resource in shared_resources %}
+          {
+            "name": "{{ resource.name }}",
+            "path": "{{ resource.path }}",
+            "type": {{ resource.type }}
+          }{%- if not loop.last %},{% endif %}
+          {%- endfor %}
+        ],
+        "name": "SharedResources",
+        "type": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{# model.tmdl - Template for Power BI TMDL model definition #}
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = [{% for table in model.tables %}"{{ table.name }}"{% if not loop.last %}, {% endif %}{% endfor %}]
+
+annotation __PBI_TimeIntelligenceEnabled = false
+
+annotation PBIDesktopVersion = 2.138.1004.0
+
+{% for table in model.tables %}
+{% if ' ' in table.name or '-' in table.name %}
+ref table '{{ table.name }}'
+{% else %}
+ref table {{ table.name }}
+{% endif %}
+{% endfor %}
+
+ref cultureInfo en-US

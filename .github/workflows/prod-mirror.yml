@@ -1,0 +1,78 @@
+name: "[PROD] Mirror Code"
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    if: ${{ github.repository != 'AIVizMigrate/Bi-Migrator-Looker' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: false
+
+      - name: Validate configuration
+        run: |
+          echo "Validating mirror repository configuration..."
+          if [ -z "${{ vars.MIRROR_REPOSITORY_URL }}" ]; then
+            echo "MIRROR_REPOSITORY_URL variable is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.MIRROR_AUTH_TOKEN }}" ]; then
+            echo "MIRROR_AUTH_TOKEN secret is not set"
+            exit 1
+          fi
+          if [[ "${{ vars.MIRROR_REPOSITORY_URL }}" != *"github.com"* ]]; then
+            echo "Only GitHub repositories are supported"
+            exit 1
+          fi
+          echo "Configuration validated"
+
+      - name: Test token access via API
+        if: contains(vars.MIRROR_REPOSITORY_URL, 'github.com')
+        run: |
+          echo "Testing GitHub token via API..."
+          REPO_PATH=$(echo "${{ vars.MIRROR_REPOSITORY_URL }}" | sed 's|https://github.com/||' | sed 's|\.git||')
+          HTTP_RESPONSE=$(curl -s -w '%{http_code}' -H "Authorization: token ${{ secrets.MIRROR_AUTH_TOKEN }}" \
+            "https://api.github.com/repos/$REPO_PATH" -o /dev/null)
+          if [ "$HTTP_RESPONSE" = "200" ]; then
+            echo "Token has access to repository"
+          elif [ "$HTTP_RESPONSE" = "404" ]; then
+            echo "Repository not found or token lacks access"
+            exit 1
+          elif [ "$HTTP_RESPONSE" = "401" ]; then
+            echo "Token is invalid or expired"
+            exit 1
+          else
+            echo "Unexpected API response: $HTTP_RESPONSE"
+            exit 1
+          fi
+
+      - name: Commit and Push to Mirror
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --unset-all http.https://github.com/.extraheader || true
+
+          REPO_PATH=$(echo "${{ vars.MIRROR_REPOSITORY_URL }}" | sed 's|https://github.com/||' | sed 's|\.git||')
+          AUTH_URL="https://x-access-token:${{ secrets.MIRROR_AUTH_TOKEN }}@github.com/$REPO_PATH.git"
+          git clone "$AUTH_URL" mirror_repo
+
+          rsync -a --delete --exclude='.git' ./ ./mirror_repo/
+
+          cd mirror_repo
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit. Mirror is up-to-date."
+          else
+            git commit -m "chore: Mirror source code"
+            git push origin main
+            echo "Pushed changes to mirror repository."
+          fi

@@ -1,0 +1,8 @@
+{
+  "displayName": "{{ displayName }}",
+  "displayOption": {{ displayOption | default(1) }},
+  "height": {{ height | default(720) }},
+  "name": "{{ name }}",
+  "ordinal": {{ ordinal | default(0) }},
+  "width": {{ width | default(1280) }}
+}

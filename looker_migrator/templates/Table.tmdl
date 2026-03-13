@@ -1,0 +1,121 @@
+{{#if has_spaces_or_special_chars}}
+table '{{source_name}}'
+{{else}}
+table {{source_name}}
+{{/if}}
+
+    {{#if is_hidden}}
+    isHidden
+    {{/if}}
+
+    {{#each columns}}
+    {{#if is_calculated}}
+    column '{{source_name}}' = {{{calculated_expression}}}
+        dataType: {{datatype}}
+        {{#if summarize_by}}
+        summarizeBy: {{summarize_by}}
+        {{/if}}
+    {{else}}
+    column '{{source_name}}'
+        dataType: {{datatype}}
+        {{#if summarize_by}}
+        summarizeBy: {{summarize_by}}
+        {{/if}}
+        {{#if source_column}}
+        sourceColumn: {{{source_column}}}
+        {{/if}}
+    {{/if}}
+        {{#if format_string}}
+        formatString: {{format_string}}
+        {{/if}}
+
+        {{#if is_hidden}}
+        isHidden
+        {{/if}}
+        {{#if data_category}}
+        dataCategory: {{data_category}}
+        {{/if}}
+        {{#if is_data_type_inferred}}
+        isDataTypeInferred: {{is_data_type_inferred}}
+        {{/if}}
+        
+        {{#if relationship_info}}
+        variation Variation
+            isDefault
+            relationship: {{relationship_info.id}}
+            defaultHierarchy: {{{relationship_info.hierarchy}}}
+        {{/if}}
+
+        {{#if annotations.SummarizationSetBy}}
+        annotation SummarizationSetBy = {{annotations.SummarizationSetBy}}
+        {{else}}
+        annotation SummarizationSetBy = Automatic
+        {{/if}}
+
+        {{#if annotations.PBI_FormatHint}}
+        annotation PBI_FormatHint = {"isGeneralNumber":true}
+        {{/if}}
+        {{#if looker_name}}
+        annotation LookerName = "{{{looker_name}}}"
+        {{/if}}
+        {{#if formula_looker}}
+        annotation FormulaLooker = "{{{formula_looker_escaped}}}"
+        {{/if}}
+
+    {{/each}}
+
+    {{#each measures}}
+    measure '{{source_name}}' = ```
+            {{{expression}}}
+    ```
+        {{#if format_string}}
+        formatString: {{format_string}}
+        {{/if}}
+
+        {{#if is_hidden}}
+        isHidden
+        {{/if}}
+
+        annotation PBI_FormatHint = {"isGeneralNumber":true}
+        {{#if looker_name}}
+        annotation LookerName = "{{{looker_name}}}"
+        {{/if}}
+        {{#if formula_looker}}
+        annotation FormulaLooker = "{{{formula_looker_escaped}}}"
+        {{/if}}
+
+    {{/each}}
+
+    {{#each hierarchies}}
+    hierarchy {{name}}
+
+        {{#if is_hidden}}
+        isHidden
+        {{/if}}
+        {{#each levels}}
+        level {{name}}
+            column: {{column_name}}
+            {{#if ordinal}}
+            ordinal: {{ordinal}}
+            {{/if}}
+        {{/each}}
+    {{/each}}
+
+    {{#each partitions}}
+    partition '{{name}}' = {{source_type}}
+        mode: {{mode}}
+        dataView: full
+        source =
+{{{expression}}}
+
+    {{/each}}
+
+    {{#if has_widget_serialization}}
+    annotation TableWidgetSerialization =
+        {
+          "VisualType": {{visual_type}},
+          "Columns": {{column_settings}}
+        }
+    {{/if}}
+
+    annotation PBI_ResultType = Table
